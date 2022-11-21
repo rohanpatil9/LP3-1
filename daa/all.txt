@@ -1,0 +1,172 @@
+Fibonacci:
+
+
+def recursive(n):
+    if n <= 1:
+        return n
+    return recursive(n-1) + recursive(n-2);
+
+def non_recurive(n):
+    a = 0
+    b = 1
+    print(a, b, end=' ')
+    for _ in range(n-2):
+        c = a + b
+        a , b = b , c
+        print(c, end=' ')
+
+if __name__ == '__main__':
+    n = int(input())
+    print("recursive:")
+    for i in range(n):
+        print(recursive(i), end=' ')
+    print("\nnon_recurive:")
+    non_recurive(n)
+
+
+
+=====================================================================
+
+
+huffman:
+
+# Use string : BCAADDDCCACACAC for testing
+
+class NodeTree:
+    def __init__(self, left=None, right=None):
+        self.left = left
+        self.right = right
+    def childrens(self):
+        return self.left, self.right
+
+def huffman_coding(node, string=''):
+    if type(node) is str:
+        return {node: string}
+    (l, r) = node.childrens()
+    d = dict()
+    d.update(huffman_coding(l, string+'0'))
+    d.update(huffman_coding(r, string+'1'))
+    return d
+
+
+if __name__ == '__main__':
+    string = input("Enter a string: ")
+    frequency = {}
+    for character in string:
+        if character in frequency:
+            frequency[character] += 1
+        else:
+            frequency[character] = 1
+    frequency = sorted(frequency.items(), key = lambda x : x[1], reverse = True)
+    nodes = frequency
+
+
+    while len(nodes) > 1:
+        (key1 , c1) = nodes[-1]
+        (key2 , c2) = nodes[-2]
+        nodes = nodes[:-2]
+        node = NodeTree(key1, key2)
+        nodes.append((node, c1+c2))
+        nodes = sorted(nodes, key = lambda x:x[1], reverse=True)
+
+    output_code = huffman_coding(nodes[0][0])
+    print('Characters\t | Frequency \t | Huffman Code')
+    print('==============================================')
+    for (char, freq) in frequency:
+        print( char, '\t\t | ', freq, '\t\t | ', output_code[char])
+
+
+======================================================================
+
+FractionalKnapsack:
+
+class Item:
+    def __init__(self, weight, worth):
+        self.weight = weight
+        self.worth = worth
+
+
+def fractionalKnapsack(allItems, sackCapacity):
+    allItems.sort(key=lambda x: (x.worth/x.weight), reverse=True)
+    sackWorth = 0
+    for item in allItems:
+        if item.weight <= sackCapacity:
+            sackCapacity -= item.weight
+            sackWorth += item.worth
+        else:
+            sackWorth += item.worth * sackCapacity / item.weight
+            break
+    return sackWorth
+
+
+if __name__ == '__main__':
+    sackCapacity = 100
+    allItems = [Item(10, 60), Item(20, 100), Item(30, 120)]
+    print(fractionalKnapsack(allItems, sackCapacity))
+
+======================================================================
+
+01 Knapsack:
+
+itemWorth = [60, 70, 80]
+itemWeight = [10, 20, 30]
+sackCapacity = 50
+n = len(itemWorth)
+dp_table = [[-1 for i in range(sackCapacity+1)] for j in range(n+1)]
+
+def knapsack(itemWorth, itemWeight, sackCapacity, n):
+    if sackCapacity == 0 or n == 0:
+        return 0
+    if dp_table[n][sackCapacity] != -1:
+        return dp_table[n][sackCapacity]
+
+    if sackCapacity >= itemWeight[n-1]:
+        dp_table[n][sackCapacity] = max(itemWorth[n-1] + knapsack(itemWorth, itemWeight, sackCapacity - itemWeight[n-1], n-1), knapsack(itemWorth, itemWeight, sackCapacity, n-1))
+        return dp_table[n][sackCapacity]
+    else:
+        dp_table[n][sackCapacity] = knapsack(itemWorth, itemWeight, sackCapacity, n-1)
+        return dp_table[n][sackCapacity]
+
+
+print(knapsack(itemWorth, itemWeight, sackCapacity, n))
+
+
+======================================================================
+
+N - Queens:
+
+
+N = int(input("Enter the number of Queens: "))
+board = [[0] * N for _ in range(N)]
+
+def isNotSafe(i, j):
+    for k in range(N):
+        if board[i][k] == 1 or board[k][j] == 1:
+            return True
+        for l in range(N):
+            if (k+l == i + j) or (k - l == i - j):
+                if board[k][l] == 1:
+                    return True
+    return False
+
+
+def placeNQueens(n):
+    if n == 0:
+        return True
+
+    for i in range(N):
+        for j in range(N):
+            if (not(isNotSafe(i, j)) and board[i][j] != 1):
+                board[i][j] = 1
+
+                if placeNQueens(n - 1) == True:
+                    return True
+
+                board[i][j] = 0
+
+    return False
+
+placeNQueens(N)
+
+for i in board:
+    print(i)
